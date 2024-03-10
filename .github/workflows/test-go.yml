@@ -3,7 +3,9 @@ name: Go
 
 on:
   push:
-    branches: [ "main", "dev"]
+    branches:
+    - main
+    - dev
 
 jobs:
 
