@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/Raadwal/boids-simulation/internal/boid"
+	"github.com/Raadwal/boids-simulation/internal/boids"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 var (
-	single_boid = boid.CreateBoid(0, 100.0, 100.0)
+	boidsArray = boids.CreateBoids(100, 0, 1080, 0, 720)
 )
 
 const (
@@ -24,7 +24,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	single_boid.Draw(screen)
+	boidsArray.Draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

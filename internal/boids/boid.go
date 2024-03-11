@@ -1,7 +1,9 @@
-package boid
+package boids
 
 import (
 	"image/color"
+	"math"
+	"math/rand"
 	"time"
 
 	"github.com/Raadwal/boids-simulation/internal/vector"
@@ -22,9 +24,12 @@ type Boid struct {
 
 func CreateBoid(id int, posX float64, posY float64) *Boid {
 	boid := Boid{
-		id:            id,
-		position:      vector.Vector{X: posX, Y: posY},
-		velocity:      vector.Vector{X: 0.0, Y: 0.0},
+		id:       id,
+		position: vector.Vector{X: posX, Y: posY},
+		velocity: vector.Vector{
+			X: (rand.Float64() * 2) - 1.0,
+			Y: (rand.Float64() * 2) - 1.0,
+		},
 		width:         10,
 		height:        20,
 		color:         color.RGBA{10, 255, 50, 255},
@@ -71,20 +76,35 @@ func (boid *Boid) Draw(screen *ebiten.Image) {
 
 	centerX, centerY := float64(boid.width/2), float64(boid.height/2)
 	options.GeoM.Translate(-centerX, -centerY)
-	options.GeoM.Rotate(boid.position.X)
-	options.GeoM.Translate(100, boid.position.Y)
+	options.GeoM.Rotate(boid.calculateRotation())
+	options.GeoM.Translate(boid.position.X, boid.position.Y)
 
 	screen.DrawImage(boid.triangleImage, &options)
 }
 
 func (boid *Boid) step() {
-	boid.position.Y += 1
-	boid.position.X += 0.01
+	boid.velocity = boid.velocity.Add(boids.calculateAcceleration(boid))
+	boid.position = boid.position.Add(boid.velocity)
+	boid.bounceIfNeeded()
 }
 
 func (boid *Boid) start() {
 	for {
 		boid.step()
 		time.Sleep(boid.stepSleep * time.Millisecond)
+	}
+}
+
+func (boid *Boid) calculateRotation() float64 {
+	angleRad := math.Atan2(boid.velocity.Y, boid.velocity.X) + math.Pi/2
+	return angleRad
+}
+
+func (boid *Boid) bounceIfNeeded() {
+	if boid.position.X < 0 || boid.position.X > 1080 {
+		boid.velocity.X = -boid.velocity.X
+	}
+	if boid.position.Y < 0 || boid.position.Y > 720 {
+		boid.velocity.Y = -boid.velocity.Y
 	}
 }
