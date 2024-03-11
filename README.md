@@ -3,4 +3,4 @@
 
 Current stage of the project
 
-![Current stage of the project](images\Boids.png?raw=true "Boids simulation")
+![Current stage of the project](images/Boids.png?raw=true "Boids simulation")
