@@ -2,6 +2,7 @@ package boids
 
 import (
 	"math/rand"
+	"sync"
 
 	"github.com/Raadwal/boids-simulation/internal/vector"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -13,7 +14,8 @@ type Boids struct {
 }
 
 var (
-	boids Boids
+	boids  Boids
+	rwLock = sync.RWMutex{}
 )
 
 func CreateBoids(quantity int, minX float64, maxX float64, minY float64, maxY float64) *Boids {
@@ -22,6 +24,7 @@ func CreateBoids(quantity int, minX float64, maxX float64, minY float64, maxY fl
 		boids:    make([]*Boid, quantity),
 	}
 
+	rwLock.Lock()
 	for i := 0; i < quantity; i++ {
 		boids.boids[i] = CreateBoid(
 			i,
@@ -31,6 +34,7 @@ func CreateBoids(quantity int, minX float64, maxX float64, minY float64, maxY fl
 
 		//fmt.Printf("%v, %v, %v\n", boids.boids[i].id, boids.boids[i].position.X, boids.boids[i].position.Y)
 	}
+	rwLock.Unlock()
 
 	return &boids
 }
@@ -45,19 +49,22 @@ func (boids *Boids) Draw(screen *ebiten.Image) {
 func (boids *Boids) calculateAcceleration(boid *Boid) vector.Vector {
 	//separation := vector.Vector{0, 0} //steer to avoid crowding local flockmates
 	//allignment := vector.Vector{0, 0} //steer towards the average heading of local flockmates
-	cohesion := vector.Vector{0, 0} //steer to move towards the average position (center of mass) of local flockmates
+	//cohesion := vector.Vector{0, 0} //steer to move towards the average position (center of mass) of local flockmates
+	avgPosition := vector.Vector{0, 0}
 
+	rwLock.RLock()
 	for i := 0; i < boids.quantity; i++ {
 		if boid.id == i {
 			continue
 		}
 
-		//cohesion = cohesion.Add(boids.boids[i].position)
+		//fmt.Println(boids.boids[i].position.X)
+		avgPosition.Add(boids.boids[i].position)
+
 	}
+	rwLock.RUnlock()
 
-	//result := vector.Vector{cohesion.X / float64(boids.quantity-1), cohesion.Y / float64(boids.quantity-1)}
-	//result = result.Subtract(boid.position)
-	//fmt.Println(result.X, result.Y)
+	acceleration := vector.Vector{0, 0}
 
-	return cohesion
+	return acceleration
 }

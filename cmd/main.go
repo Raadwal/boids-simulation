@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	boidsArray = boids.CreateBoids(100, 0, 1080, 0, 720)
+	boidsArray = boids.CreateBoids(1000, 0, 1080, 0, 720)
 )
 
 const (

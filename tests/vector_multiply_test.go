@@ -10,11 +10,11 @@ func TestVectorMultiply_PositiveCoordinates(t *testing.T) {
 	v1 := vector.Vector{X: 3, Y: 4}
 	v2 := vector.Vector{X: 5, Y: 6}
 
-	result := v1.Multiply(v2)
+	v1.Multiply(v2)
 	expected := vector.Vector{X: 15, Y: 24}
 
-	if result != expected {
-		t.Errorf("Expected %v, got %v", expected, result)
+	if v1 != expected {
+		t.Errorf("Expected %v, got %v", expected, v1)
 	}
 }
 
@@ -22,33 +22,33 @@ func TestVectorMultiply_NegativeCoordinates(t *testing.T) {
 	v1 := vector.Vector{X: -2, Y: 5}
 	v2 := vector.Vector{X: 3, Y: -1}
 
-	result := v1.Multiply(v2)
+	v1.Multiply(v2)
 	expected := vector.Vector{X: -6, Y: -5}
 
-	if result != expected {
-		t.Errorf("Expected %v, got %v", expected, result)
+	if v1 != expected {
+		t.Errorf("Expected %v, got %v", expected, v1)
 	}
 }
 
-func TestVectorMultiply_ZeroVectors(t *testing.T) {
-	zeroVector := vector.Vector{X: 0, Y: 0}
-	v := vector.Vector{X: 2, Y: 3}
+func TestVectorMultiply_ZeroVector(t *testing.T) {
+	v1 := vector.Vector{X: 2, Y: 3}
+	v2 := vector.Vector{X: 0, Y: 0}
 
-	result := v.Multiply(zeroVector)
-	expected := zeroVector
+	v1.Multiply(v2)
+	expected := vector.Vector{X: 0, Y: 0}
 
-	if result != expected {
-		t.Errorf("Expected %v, got %v", expected, result)
+	if v1 != expected {
+		t.Errorf("Expected %v, got %v", expected, v1)
 	}
 }
 
-func TestVectorMultiply_IdenticalVectors(t *testing.T) {
+func TestVectorMultiply_Self(t *testing.T) {
 	v := vector.Vector{X: 7, Y: -2}
 
-	result := v.Multiply(v)
+	v.Multiply(v)
 	expected := vector.Vector{X: 49, Y: 4}
 
-	if result != expected {
-		t.Errorf("Expected %v, got %v", expected, result)
+	if v != expected {
+		t.Errorf("Expected %v, got %v", expected, v)
 	}
 }

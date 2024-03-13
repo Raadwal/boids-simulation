@@ -83,9 +83,14 @@ func (boid *Boid) Draw(screen *ebiten.Image) {
 }
 
 func (boid *Boid) step() {
-	boid.velocity = boid.velocity.Add(boids.calculateAcceleration(boid))
-	boid.position = boid.position.Add(boid.velocity)
+	//rwLock.Lock()
+	velocity := boids.calculateAcceleration(boid)
+	//rwLock.Unlock()
+	//rwLock.Lock()
+	boid.velocity.Add(velocity)
+	boid.position.Add(boid.velocity)
 	boid.bounceIfNeeded()
+	//rwLock.Unlock()
 }
 
 func (boid *Boid) start() {
