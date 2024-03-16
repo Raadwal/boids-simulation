@@ -2,7 +2,8 @@
  Boids simulation utilizing multithreading created with Go.
 
 ### Simulation
-<video controls src="recording\Boid Simulation.mp4" title="Title"></video>
+<img src="recording\Simulation.gif" alt="Boids simulation" width="1080">
+
 The settings of the simulation shown above:
 ```json
 {
