@@ -24,9 +24,6 @@ type BoidsConfig struct {
 type WindowConfig struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
-
-	Recording  bool `json:"recording"`
-	FullScreen bool `json:"fullScreen"`
 }
 
 type AppConfig struct {
@@ -67,8 +64,6 @@ func printConfig() {
 
 	fmt.Println(strings.Repeat("=", 10), "Window Config", strings.Repeat("=", 10))
 	fmt.Printf("%-*s (%v, %v)\n", width, "Window size:", config.Window.Width, config.Window.Height)
-	fmt.Printf("%-*s %v\n", width, "Full screen:", config.Window.FullScreen)
-	fmt.Printf("%-*s %v\n", width, "Recording simulation:", config.Window.Recording)
 
 	fmt.Println(strings.Repeat("=", 10), "Boids Config", strings.Repeat("=", 10))
 	fmt.Printf("%-*s %v\n", width, "Quantity:", config.Boids.Quantity)

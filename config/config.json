@@ -1,9 +1,7 @@
 {
     "window": {
         "width": 1080,
-        "height": 720,
-        "recording": false,
-        "fullScreen": false
+        "height": 720
     },
     "boids": {
         "quantity": 1000,
