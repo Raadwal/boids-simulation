@@ -4,40 +4,43 @@ import (
 	"log"
 
 	"github.com/Raadwal/boids-simulation/internal/boids"
+	"github.com/Raadwal/boids-simulation/internal/config"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var (
-	boidsArray = boids.CreateBoids(1000, 0, 1080, 0, 720)
-)
+func init() {
+	err := config.LoadConfig("config/config.json", true)
+	if err != nil {
+		log.Fatal("Error when loading config:", err)
+	}
 
-const (
-	screenWidth  = 1080
-	screenHeight = 720
+	boidsCollection = boids.CreateBoids()
+}
+
+var (
+	boidsCollection *boids.Boids
 )
 
 type Game struct{}
 
 func (g *Game) Update() error {
-	// Write your game's logical update.
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	boidsArray.Draw(screen)
+	boidsCollection.Draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return screenWidth, screenHeight
+	return config.Window.Width, config.Window.Height
 }
 
 func main() {
 	game := &Game{}
 
-	// Specify the window size as you like. Here, a doubled size is specified.
-	ebiten.SetWindowSize(screenWidth, screenHeight)
+	ebiten.SetWindowSize(config.Window.Width, config.Window.Height)
 	ebiten.SetWindowTitle("Boids simulation")
-	// Call ebiten.RunGame to start your game loop.
+
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}

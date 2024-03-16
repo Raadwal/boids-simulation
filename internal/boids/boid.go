@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/Raadwal/boids-simulation/internal/config"
 	"github.com/Raadwal/boids-simulation/internal/vector"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -83,14 +84,48 @@ func (boid *Boid) Draw(screen *ebiten.Image) {
 }
 
 func (boid *Boid) step() {
-	//rwLock.Lock()
-	velocity := boids.calculateAcceleration(boid)
-	//rwLock.Unlock()
-	//rwLock.Lock()
-	boid.velocity.Add(velocity)
+	prev_position := boid.position
+
+	acceleration := boids.calculateAcceleration(boid)
+	boid.velocity.Add(acceleration)
+	boid.applySpeedLimits()
+	boid.turnAroundIfNeeded()
+
 	boid.position.Add(boid.velocity)
 	boid.bounceIfNeeded()
-	//rwLock.Unlock()
+	boid.updateArray(prev_position)
+}
+
+func (boid *Boid) updateArray(prev_position vector.Vector) {
+	prevRow := int(prev_position.X)
+	prevCol := int(prev_position.Y)
+
+	cur_row := int(boid.position.X)
+	cur_col := int(boid.position.Y)
+
+	//fmt.Println(cur_row, cur_col, "--", boid.position.X, boid.position.Y)
+
+	index := -1
+
+	rwLock.Lock()
+	for i := 0; i < len(boids.position[prevRow][prevCol]); i++ {
+		if boids.position[prevRow][prevCol][i] == boid.id {
+			//println(boids.positions[prevRow][prevCol][i], boid.id, i)
+			index = i
+			break
+		}
+	}
+	//fmt.Println(index)
+	//rwLock.RUnlock()
+
+	//rwLock.Lock()
+	if index != -1 {
+		//fmt.Println(index, len(boids.positions[prevRow][prevCol]), boids.positions[prevRow][prevCol][index])
+		boids.position[prevRow][prevCol] = append(boids.position[prevRow][prevCol][:index], boids.position[prevRow][prevCol][index+1:]...)
+	}
+
+	boids.position[cur_row][cur_col] = append(boids.position[cur_row][cur_col], boid.id)
+	rwLock.Unlock()
 }
 
 func (boid *Boid) start() {
@@ -106,10 +141,42 @@ func (boid *Boid) calculateRotation() float64 {
 }
 
 func (boid *Boid) bounceIfNeeded() {
-	if boid.position.X < 0 || boid.position.X > 1080 {
+	if boid.position.X < 0 || boid.position.X > float64(config.Window.Width) {
 		boid.velocity.X = -boid.velocity.X
+		boid.position.X = math.Max(0, math.Min(float64(config.Window.Width), boid.position.X))
 	}
-	if boid.position.Y < 0 || boid.position.Y > 720 {
+	if boid.position.Y < 0 || boid.position.Y > float64(config.Window.Height) {
 		boid.velocity.Y = -boid.velocity.Y
+		boid.position.Y = math.Max(0, math.Min(float64(config.Window.Height), boid.position.Y))
+	}
+}
+
+func (boid *Boid) turnAroundIfNeeded() {
+	rwLock.Lock()
+	if boid.position.X < config.Boids.ScreenMargin {
+		boid.velocity.X = boid.velocity.X + boids.turnFactor
+	} else if boid.position.X > float64(config.Window.Width)-config.Boids.ScreenMargin {
+		boid.velocity.X = boid.velocity.X - boids.turnFactor
+	}
+
+	if boid.position.Y < config.Boids.ScreenMargin {
+		boid.velocity.Y = boid.velocity.Y + boids.turnFactor
+	} else if boid.position.Y > float64(config.Window.Height)-config.Boids.ScreenMargin {
+		boid.velocity.Y = boid.velocity.Y - boids.turnFactor
+	}
+	rwLock.Unlock()
+}
+
+func (boid *Boid) applySpeedLimits() {
+	speed := math.Sqrt(math.Pow(boid.velocity.X, 2) + math.Pow(boid.velocity.Y, 2))
+
+	if speed > float64(boids.maxSpeed) {
+		boid.velocity.DivideByScalar(speed)
+		boid.velocity.MultiplyByScalar(float64(boids.maxSpeed))
+	}
+
+	if speed < float64(boids.minSpeed) {
+		boid.velocity.DivideByScalar(speed)
+		boid.velocity.MultiplyByScalar(float64(boids.maxSpeed))
 	}
 }
